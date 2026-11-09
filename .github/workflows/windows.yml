@@ -1,0 +1,33 @@
+name: Windows
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: clang-cl + MSVC STL (Windows Server 2022)
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain versions
+        shell: pwsh
+        run: |
+          cmake --version
+          & "${env:ProgramFiles}\Microsoft Visual Studio\2022\Enterprise\VC\Tools\Llvm\x64\bin\clang-cl.exe" --version
+
+      - name: Configure
+        run: cmake --preset windows
+
+      - name: Build
+        run: cmake --build --preset windows
+
+      - name: Test
+        run: ctest --preset windows

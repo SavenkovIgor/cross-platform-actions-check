@@ -1,0 +1,41 @@
+name: Linux
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: linux-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: clang + libc++ (Ubuntu 24.04)
+    runs-on: ubuntu-24.04
+    env:
+      CC: clang-18
+      CXX: clang++-18
+    steps:
+      - uses: actions/checkout@v4
+
+      # libstdc++ 13 hides <expected> from clang 18 (needs __cpp_concepts >= 202002),
+      # so Linux is verified against libc++ (see the "linux" CMake preset).
+      - name: Install toolchain
+        run: sudo apt-get update && sudo apt-get install -y clang-18 libc++-18-dev libc++abi-18-dev ninja-build
+
+      - name: Toolchain versions
+        run: |
+          $CXX --version
+          cmake --version
+          ninja --version
+
+      - name: Configure
+        run: cmake --preset linux
+
+      - name: Build
+        run: cmake --build --preset linux
+
+      - name: Test
+        run: ctest --preset linux
