@@ -1,0 +1,46 @@
+name: macOS
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: clang + libc++ (Homebrew LLVM, macOS 15)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install toolchain
+        run: brew install llvm ninja
+
+      # Homebrew's libc++ is newer than the system one; link and run against it.
+      - name: Select Homebrew LLVM
+        run: |
+          LLVM="$(brew --prefix llvm)"
+          {
+            echo "CC=$LLVM/bin/clang"
+            echo "CXX=$LLVM/bin/clang++"
+            echo "LDFLAGS=-L$LLVM/lib/c++ -Wl,-rpath,$LLVM/lib/c++"
+          } >> "$GITHUB_ENV"
+
+      - name: Toolchain versions
+        run: |
+          "$CXX" --version
+          cmake --version
+          ninja --version
+
+      - name: Configure
+        run: cmake --preset macos
+
+      - name: Build
+        run: cmake --build --preset macos
+
+      - name: Test
+        run: ctest --preset macos --verbose
