@@ -15,7 +15,7 @@ jobs:
     name: clang + libc++ (Homebrew LLVM, macOS 15)
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install toolchain
         run: brew install llvm ninja
@@ -43,4 +43,4 @@ jobs:
         run: cmake --build --preset macos
 
       - name: Test
-        run: ctest --preset macos
+        run: ctest --preset macos --verbose

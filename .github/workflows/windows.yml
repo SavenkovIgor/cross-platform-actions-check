@@ -15,7 +15,7 @@ jobs:
     name: clang-cl + MSVC STL (Windows Server 2022)
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Toolchain versions
         shell: pwsh
@@ -30,4 +30,4 @@ jobs:
         run: cmake --build --preset windows
 
       - name: Test
-        run: ctest --preset windows
+        run: ctest --preset windows --verbose

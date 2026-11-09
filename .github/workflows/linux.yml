@@ -18,7 +18,7 @@ jobs:
       CC: clang-18
       CXX: clang++-18
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # libstdc++ 13 hides <expected> from clang 18 (needs __cpp_concepts >= 202002),
       # so Linux is verified against libc++ (see the "linux" CMake preset).
@@ -38,4 +38,4 @@ jobs:
         run: cmake --build --preset linux
 
       - name: Test
-        run: ctest --preset linux
+        run: ctest --preset linux --verbose
